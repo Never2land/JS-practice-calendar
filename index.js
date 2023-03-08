@@ -50,7 +50,7 @@ function generateCalendar(month, year) {
     }
     days.appendChild(day);
   }
-  cur_month.innerHTML = month + 1 + '/'  + year;
+  cur_month.innerHTML = monthNames[month] + ' / ' + year;
 }
 
 generateCalendar(currentMonth, currentYear);
