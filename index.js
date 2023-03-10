@@ -19,6 +19,13 @@ const monthNames = [
 const today = new Date();
 let currentMonth = today.getMonth();
 let currentYear = today.getFullYear();
+let clicked = null;
+let events = localStorage.getItem('events')
+  ? JSON.parse(localStorage.getItem('events'))
+  : [];
+
+const newEventModal = document.getElementById('newEventModal');
+const modalBackDrop = document.getElementById('modalBackDrop');
 
 const prev = document.querySelector('#prev');
 const next = document.querySelector('#next');
@@ -45,12 +52,52 @@ function generateCalendar(month, year) {
       ) {
         day.classList.add('today');
       }
-    } else {
-      day.innerHTML = ' ';
+      const date = `${month + 1}/${i - firstDayOfMonth}/${year}`;
+      const eventForDay = events.find((event) => event.date === date);
+      if (eventForDay) {
+        const eventDiv = document.createElement('div');
+        eventDiv.innerText = eventForDay.title;
+        day.appendChild(eventDiv);
+      }
     }
+
+    day.addEventListener('click', (e) => {
+      const selected = document.querySelector('.selected');
+      if (selected) {
+        selected.classList.remove('selected');
+      }
+      e.target.classList.add('selected');
+      const date = `${month + 1}/${i - firstDayOfMonth}/${year}`;
+      openModal(date);
+    });
+
     days.appendChild(day);
   }
   cur_month.innerHTML = monthNames[month] + ' / ' + year;
+}
+
+function openModal(date) {
+  clicked = date;
+  // const modal = document.getElementById('modalBackDrop');
+  newEventModal.style.display = 'block';
+  modalBackDrop.style.display = 'block';
+}
+
+function closeModal() {
+  clicked = null;
+  newEventModal.style.display = 'none';
+  modalBackDrop.style.display = 'none';
+}
+
+function saveEvent() {
+  const title = document.getElementById('eventTitleInput').value;
+  const event = {
+    date: clicked,
+    title: title,
+  };
+  events.push(event);
+  localStorage.setItem('events', JSON.stringify(events));
+  console.log(localStorage);
 }
 
 generateCalendar(currentMonth, currentYear);
@@ -67,12 +114,5 @@ next.addEventListener('click', () => {
   generateCalendar(currentMonth, currentYear);
 });
 
-days.addEventListener('click', (e) => {
-  const messageDiv = document.getElementById('message');
-  const selected = document.querySelector('.selected');
-  if (selected) {
-    selected.classList.remove('selected');
-  }
-  e.target.classList.add('selected');
-  messageDiv.innerHTML = event.target.innerText;
-});
+document.getElementById('cancelButton').addEventListener('click', closeModal);
+document.getElementById('saveButton').addEventListener('click', saveEvent);
